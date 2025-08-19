@@ -61,7 +61,7 @@ export default function PatientDashboard() {
     if (user) {
       load();
     }
-  }, [user, isLoading]);
+  }, [user, isLoading, load, router]);
 
   async function book(slotId: string) {
     if (!user) {

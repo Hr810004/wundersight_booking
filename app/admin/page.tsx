@@ -44,7 +44,7 @@ export default function AdminDashboard() {
       }
       load();
     }
-  }, [user, isLoading]);
+  }, [user, isLoading, router]);
 
   return (
     <div style={{ display: 'grid', gap: 16 }}>
@@ -76,7 +76,7 @@ export default function AdminDashboard() {
               </thead>
               <tbody>
                 {bookings.map((b) => (
-                  <tr>
+                  <tr key={b.id}>
                     <td>{b.user.name}</td>
                     <td>{b.user.email}</td>
                     <td>

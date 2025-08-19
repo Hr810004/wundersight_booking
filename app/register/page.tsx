@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/app/components/Button';
 import { Card } from '@/app/components/Card';
 import { useAuth } from '@/app/context/auth-context';
-import { Alert } from '@/app/components/Alert';
 
 export default function RegisterPage() {
   const { register } = useAuth();
