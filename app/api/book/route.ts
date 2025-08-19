@@ -7,15 +7,19 @@ const BookSchema = z.object({ slotId: z.uuid() });
 
 export async function POST(req: NextRequest) {
   try {
+    if (!process.env.DATABASE_URL) {
+      return new Response(
+        JSON.stringify({ error: { code: 'CONFIG', message: 'DATABASE_URL is not configured' } }),
+        { status: 500, headers: { 'content-type': 'application/json' } },
+      );
+    }
     const authHeader = req.headers.get('authorization') || undefined;
     const auth = await requireAuth(authHeader);
     // Only patients can book
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((auth as any).error) {
+    if ('error' in auth) {
       return new Response(JSON.stringify(auth), { status: 401, headers: { 'content-type': 'application/json' } });
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user = (auth as any).user as { id: string; role: string };
+    const { user } = auth;
     if (user.role !== 'patient') {
       return new Response(
         JSON.stringify({ error: { code: 'FORBIDDEN', message: 'Only patients can book' } }),
@@ -59,5 +63,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
 
 

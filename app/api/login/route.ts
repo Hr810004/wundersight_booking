@@ -30,6 +30,12 @@ function isRateLimited(key: string) {
 
 export async function POST(req: NextRequest) {
   try {
+    if (!process.env.DATABASE_URL) {
+      return new Response(
+        JSON.stringify({ error: { code: 'CONFIG', message: 'DATABASE_URL is not configured' } }),
+        { status: 500, headers: { 'content-type': 'application/json' } },
+      );
+    }
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     if (isRateLimited(`login:${ip}`)) {
       return new Response(

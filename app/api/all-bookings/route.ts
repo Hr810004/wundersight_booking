@@ -4,6 +4,12 @@ import { requireAuth } from '@/app/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
+    if (!process.env.DATABASE_URL) {
+      return new Response(
+        JSON.stringify({ error: { code: 'CONFIG', message: 'DATABASE_URL is not configured' } }),
+        { status: 500, headers: { 'content-type': 'application/json' } },
+      );
+    }
     const authHeader = req.headers.get('authorization') || undefined;
     const auth = await requireAuth(authHeader);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
