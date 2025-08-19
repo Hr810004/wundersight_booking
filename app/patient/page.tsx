@@ -5,9 +5,12 @@ function toISODate(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
+type Slot = { id: string; startAt: string; endAt: string };
+type Booking = { id: string; slot: Slot };
+
 export default function PatientDashboard() {
-  const [slots, setSlots] = useState<any[]>([]);
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -24,16 +27,19 @@ export default function PatientDashboard() {
     setError(null);
     try {
       const res = await fetch(`/api/slots?from=${from}&to=${to}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error?.message || 'Failed to load slots');
-      setSlots(data);
+      const data = (await res.json()) as unknown;
+      if (!res.ok) {
+        const errMsg = (data as { error?: { message?: string } })?.error?.message || 'Failed to load slots';
+        throw new Error(errMsg);
+      }
+      setSlots(data as Slot[]);
       if (token) {
         const r2 = await fetch('/api/my-bookings', { headers: { Authorization: `Bearer ${token}` } });
-        const d2 = await r2.json();
-        if (r2.ok) setBookings(d2);
+        const d2: Booking[] | { error?: { message?: string } } = await r2.json();
+        if (r2.ok) setBookings(d2 as Booking[]);
       }
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load');
     } finally {
       setLoading(false);
     }
@@ -55,7 +61,7 @@ export default function PatientDashboard() {
       headers: { 'content-type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ slotId }),
     });
-    const data = await res.json();
+    const data: { error?: { message?: string } } = await res.json();
     if (!res.ok) {
       setError(data?.error?.message || 'Booking failed');
     }

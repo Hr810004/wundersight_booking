@@ -1,8 +1,15 @@
 "use client";
 import { useEffect, useState } from 'react';
 
+type BookingRow = {
+  id: string;
+  createdAt: string;
+  slot: { startAt: string; endAt: string };
+  user: { name: string; email: string };
+};
+
 export default function AdminDashboard() {
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -12,11 +19,11 @@ export default function AdminDashboard() {
         const res = await fetch('/api/all-bookings', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error?.message || 'Failed to load bookings');
-        setBookings(data);
-      } catch (e: any) {
-        setError(e.message);
+        const data: BookingRow[] | { error?: { message?: string } } = await res.json();
+        if (!res.ok) throw new Error((data as any)?.error?.message || 'Failed to load bookings');
+        setBookings(data as BookingRow[]);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load bookings');
       }
     }
     load();

@@ -27,7 +27,7 @@ export function signJwt(payload: JwtPayload): string {
 export function verifyJwt(token: string): JwtPayload | null {
   try {
     return jwt.verify(token, JWT_SECRET) as JwtPayload;
-  } catch (_) {
+  } catch {
     return null;
   }
 }

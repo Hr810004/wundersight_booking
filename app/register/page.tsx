@@ -25,8 +25,8 @@ export default function RegisterPage() {
       localStorage.setItem('token', data.token);
       localStorage.setItem('role', data.role);
       router.push('/patient');
-    } catch (err: any) {
-      setError(err.message || 'Register failed');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Register failed');
     } finally {
       setLoading(false);
     }

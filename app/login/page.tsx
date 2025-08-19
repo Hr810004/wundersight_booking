@@ -25,8 +25,8 @@ export default function LoginPage() {
       localStorage.setItem('role', data.role);
       if (data.role === 'admin') router.push('/admin');
       else router.push('/patient');
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);
     }

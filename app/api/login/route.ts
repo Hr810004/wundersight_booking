@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: { 'content-type': 'application/json' },
     });
-  } catch (e) {
+  } catch {
     return new Response(
       JSON.stringify({ error: { code: 'INTERNAL_ERROR', message: 'Something went wrong' } }),
       { status: 500, headers: { 'content-type': 'application/json' } },
