@@ -1,12 +1,8 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/app/components/Button';
-import { Card } from '@/app/components/Card';
-import { useAuth } from '@/app/context/auth-context';
 
 export default function RegisterPage() {
-  const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,10 +15,15 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
-      const result = await register(name, email, password);
-      if (!result.success) {
-        throw new Error(result.error || 'Register failed');
-      }
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || 'Register failed');
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
       router.push('/patient');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Register failed');
@@ -32,16 +33,16 @@ export default function RegisterPage() {
   }
 
   return (
-    <Card>
-      <h2 style={{ marginBottom: 12 }}>Register</h2>
-      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 10, maxWidth: 420 }}>
+    <div>
+      <h2>Register</h2>
+      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 8, maxWidth: 360 }}>
         <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
         <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Button disabled={loading}>{loading ? '...' : 'Create account'}</Button>
-        {error && <p style={{ color: 'crimson' }}>{error}</p>}
+        <button disabled={loading}>{loading ? '...' : 'Create account'}</button>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
-    </Card>
+    </div>
   );
 }
 
