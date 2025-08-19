@@ -1,6 +1,8 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/app/components/Button';
+import { Card } from '@/app/components/Card';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -33,15 +35,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 8, maxWidth: 360 }}>
+    <Card>
+      <h2 style={{ marginBottom: 12 }}>Login</h2>
+      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 10, maxWidth: 420 }}>
         <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button disabled={loading}>{loading ? '...' : 'Login'}</button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <Button disabled={loading}>{loading ? '...' : 'Login'}</Button>
+        {error && <p style={{ color: 'crimson' }}>{error}</p>}
       </form>
-    </div>
+    </Card>
   );
 }
 

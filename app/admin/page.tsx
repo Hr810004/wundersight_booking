@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { Card } from '@/app/components/Card';
 
 type BookingRow = {
   id: string;
@@ -35,30 +36,32 @@ export default function AdminDashboard() {
   return (
     <div style={{ display: 'grid', gap: 16 }}>
       <h2>Admin Dashboard</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: 'left' }}>Patient</th>
-            <th style={{ textAlign: 'left' }}>Email</th>
-            <th style={{ textAlign: 'left' }}>Slot (UTC)</th>
-            <th style={{ textAlign: 'left' }}>Booked At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bookings.map((b) => (
-            <tr key={b.id}>
-              <td>{b.user.name}</td>
-              <td>{b.user.email}</td>
-              <td>
-                {new Date(b.slot.startAt).toISOString()} → {new Date(b.slot.endAt).toISOString()}
-              </td>
-              <td>{new Date(b.createdAt).toISOString()}</td>
+      {error && <p style={{ color: 'crimson' }}>{error}</p>}
+      <Card>
+        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left' }}>Patient</th>
+              <th style={{ textAlign: 'left' }}>Email</th>
+              <th style={{ textAlign: 'left' }}>Slot (UTC)</th>
+              <th style={{ textAlign: 'left' }}>Booked At</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      {bookings.length === 0 && <p>No bookings yet.</p>}
+          </thead>
+          <tbody>
+            {bookings.map((b) => (
+              <tr key={b.id}>
+                <td>{b.user.name}</td>
+                <td>{b.user.email}</td>
+                <td>
+                  {new Date(b.slot.startAt).toISOString()} → {new Date(b.slot.endAt).toISOString()}
+                </td>
+                <td>{new Date(b.createdAt).toISOString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {bookings.length === 0 && <p>No bookings yet.</p>}
+      </Card>
     </div>
   );
 }
