@@ -19,9 +19,12 @@ export default function AdminDashboard() {
         const res = await fetch('/api/all-bookings', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const data: BookingRow[] | { error?: { message?: string } } = await res.json();
-        if (!res.ok) throw new Error((data as any)?.error?.message || 'Failed to load bookings');
-        setBookings(data as BookingRow[]);
+        const raw = (await res.json()) as unknown;
+        if (!res.ok) {
+          const errMsg = (raw as { error?: { message?: string } })?.error?.message || 'Failed to load bookings';
+          throw new Error(errMsg);
+        }
+        setBookings(raw as BookingRow[]);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load bookings');
       }

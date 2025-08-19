@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     try {
       const booking = await prisma.booking.create({ data: { slotId, userId: user.id } });
       return new Response(JSON.stringify(booking), { status: 201, headers: { 'content-type': 'application/json' } });
-    } catch (e) {
+    } catch {
       // Unique constraint on slotId
       return new Response(
         JSON.stringify({ error: { code: 'SLOT_TAKEN', message: 'This slot is already booked' } }),
