@@ -3,7 +3,7 @@ import { prisma } from '@/app/lib/prisma';
 import { requireAuth } from '@/app/lib/auth';
 import { z } from 'zod';
 
-const BookSchema = z.object({ slotId: z.string().uuid() });
+const BookSchema = z.object({ slotId: z.uuid() });
 
 export async function POST(req: NextRequest) {
   try {
