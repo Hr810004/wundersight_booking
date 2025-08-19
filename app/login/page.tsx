@@ -3,8 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/components/Button';
 import { Card } from '@/app/components/Card';
+import { useAuth } from '@/app/context/auth-context';
+import { Alert } from '@/app/components/Alert';
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -16,16 +19,13 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error?.message || 'Login failed');
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('role', data.role);
-      if (data.role === 'admin') router.push('/admin');
+      const result = await login(email, password);
+      if (!result.success) {
+        throw new Error(result.error || 'Login failed');
+      }
+      // Redirect based on user role
+      const role = localStorage.getItem('role');
+      if (role === 'admin') router.push('/admin');
       else router.push('/patient');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');

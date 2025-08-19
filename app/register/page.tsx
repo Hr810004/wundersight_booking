@@ -3,8 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/components/Button';
 import { Card } from '@/app/components/Card';
+import { useAuth } from '@/app/context/auth-context';
+import { Alert } from '@/app/components/Alert';
 
 export default function RegisterPage() {
+  const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,15 +20,10 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error?.message || 'Register failed');
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('role', data.role);
+      const result = await register(name, email, password);
+      if (!result.success) {
+        throw new Error(result.error || 'Register failed');
+      }
       router.push('/patient');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Register failed');
