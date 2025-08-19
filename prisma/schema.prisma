@@ -1,0 +1,49 @@
+// Prisma schema for Appointment Booking app
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  patient
+  admin
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(patient)
+  createdAt    DateTime  @default(now())
+  bookings     Booking[]
+}
+
+model Slot {
+  id        String     @id @default(uuid())
+  startAt   DateTime
+  endAt     DateTime
+  createdAt DateTime   @default(now())
+  bookings  Booking[]
+
+  @@unique([startAt, endAt])
+}
+
+model Booking {
+  id        String   @id @default(uuid())
+  userId    String
+  slotId    String   @unique
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slot Slot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+

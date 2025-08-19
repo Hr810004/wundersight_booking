@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Minimal Appointment Booking App (Clinic) – Next.js + Prisma + Postgres
 
-## Getting Started
+Live links (fill after deploy):
+- Frontend URL: -
+- API URL: -
 
-First, run the development server:
+Test credentials:
+- Patient: patient@example.com / Passw0rd!
+- Admin: admin@example.com / Passw0rd!
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Tech stack
+- Next.js (App Router) for UI and API routes
+- Prisma ORM with Postgres (Neon)
+- JWT auth with role-based access
+
+Environment variables (.env)
+- DATABASE_URL: Postgres connection string (use Neon). Example: postgresql://user:pass@host/db?sslmode=require
+- JWT_SECRET: long random string
+- ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_NAME: admin seed user
+- PATIENT_EMAIL / PATIENT_PASSWORD / PATIENT_NAME: optional demo patient
+
+Local setup
+1) Install deps: `npm install`
+2) Push schema: `npm run db:push`
+3) Seed: `npm run db:seed`
+4) Dev server: `npm run dev`
+
+API Endpoints
+- POST /api/register – { name, email, password } → 201 with { token, role }
+- POST /api/login – { email, password } → 200 with { token, role }
+- GET /api/slots?from=YYYY-MM-DD&to=YYYY-MM-DD – available 30-min blocks 09:00–17:00 UTC
+- POST /api/book – { slotId } [Bearer token patient] → 201; prevents double booking
+- GET /api/my-bookings – patient auth
+- GET /api/all-bookings – admin auth
+
+Architecture notes
+- Data model: users, slots, bookings. Unique on bookings.slotId prevents double booking. Slots unique by (startAt,endAt).
+- Auth: JWT; user id and role in payload; verify in route handlers. Store token client-side.
+- Concurrency: booking relies on unique DB constraint; conflict returns 409 with code SLOT_TAKEN.
+- Error handling: consistent JSON { error: { code, message } } and proper HTTP codes.
+
+Deployment (Vercel + Neon)
+1) Create Neon Postgres project; copy connection string → set Vercel Project Env: DATABASE_URL.
+2) Set JWT_SECRET and seed vars in Vercel.
+3) In Vercel, import this repo and deploy.
+4) After first deploy, run `npm run db:push` and `npm run db:seed` via Vercel build/console (or locally, using same DATABASE_URL).
+
+Verification (curl)
+```
+curl -s -X POST "$BASE/api/register" -H 'content-type: application/json' \
+  -d '{"name":"Alice","email":"alice@example.com","password":"Passw0rd!"}'
+
+TOKEN=$(curl -s -X POST "$BASE/api/login" -H 'content-type: application/json' \
+  -d '{"email":"alice@example.com","password":"Passw0rd!"}' | jq -r .token)
+
+curl -s "$BASE/api/slots?from=$(date -u +%F)&to=$(date -u -d "+6 days" +%F)"
+
+SLOT=$(curl -s "$BASE/api/slots?from=$(date -u +%F)&to=$(date -u -d "+6 days" +%F)" | jq -r '.[0].id')
+
+curl -s -X POST "$BASE/api/book" -H "authorization: Bearer $TOKEN" -H 'content-type: application/json' \
+  -d "{\"slotId\":\"$SLOT\"}"
+
+curl -s "$BASE/api/my-bookings" -H "authorization: Bearer $TOKEN"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Known limitations / next steps
+- No refresh token flow; client stores JWT only.
+- Minimal UI; no pagination.
+- Basic throttling could be added to login.

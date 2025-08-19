@@ -35,6 +35,14 @@ a {
   text-decoration: none;
 }
 
+input, button, select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+button { cursor: pointer; }
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
