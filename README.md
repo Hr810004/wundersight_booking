@@ -1,8 +1,7 @@
 Minimal Appointment Booking App (Clinic) – Next.js + Prisma + Postgres
 
-Live links (fill after deploy):
-- Frontend URL: -
-- API URL: -
+Live links:
+- Frontend/API URL: https://wundersight-booking-3gz4.vercel.app/
 
 Test credentials:
 - Patient: patient@example.com / Passw0rd!
@@ -43,7 +42,16 @@ Deployment (Vercel + Neon)
 1) Create Neon Postgres project; copy connection string → set Vercel Project Env: DATABASE_URL.
 2) Set JWT_SECRET and seed vars in Vercel.
 3) In Vercel, import this repo and deploy.
-4) After first deploy, run `npm run db:push` and `npm run db:seed` via Vercel build/console (or locally, using same DATABASE_URL).
+4) Prisma on Vercel: Prisma Client is generated via `postinstall`. Schema and seed were applied to Neon already; if needed, run locally with the same DATABASE_URL: `npm run db:push && npm run db:seed`.
+
+Submission Checklist
+- Frontend/API URL: https://wundersight-booking-3gz4.vercel.app/
+- Patient: patient@example.com / Passw0rd!
+- Admin: admin@example.com / Passw0rd!
+- Repo URL: https://github.com/Hr810004/wundersight_booking
+- Run locally: README steps verified
+- Curl steps included
+- Notes on trade-offs & next steps below
 
 Verification (curl)
 ```
@@ -66,4 +74,4 @@ curl -s "$BASE/api/my-bookings" -H "authorization: Bearer $TOKEN"
 Known limitations / next steps
 - No refresh token flow; client stores JWT only.
 - Minimal UI; no pagination.
-- Basic throttling could be added to login.
+- Simple login throttling (in-memory) added; for production, move to a distributed store.
